@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdnoreturn.h>
+#include <sys/types.h>
 
 #include "util/macros.h"
 

@@ -218,8 +218,12 @@ junit_xml_error_handler(void *xml_ctx, const char *msg, ...)
     va_end(va);
 }
 
+/* glibc spells the signal-handler function pointer as `sighandler_t`, but
+ * FreeBSD (and POSIX in general) does not. Use a portable local typedef. */
+typedef void (*cru_sighandler_t)(int);
+
 static void
-set_sigint_handler(sighandler_t handler)
+set_sigint_handler(cru_sighandler_t handler)
 {
     const struct sigaction sa = {
         .sa_handler = handler,

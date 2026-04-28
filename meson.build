@@ -31,9 +31,17 @@ cc = meson.get_compiler('c')
 pre_args = [
   '-D_DEFAULT_SOURCE',
   '-D_GNU_SOURCE',
-  '-D_POSIX_C_SOURCE=200809L',
-  '-D_XOPEN_SOURCE=700',
 ]
+
+# On FreeBSD, defining _POSIX_C_SOURCE / _XOPEN_SOURCE hides BSD-only
+# interfaces such as sysconf(_SC_NPROCESSORS_ONLN). _DEFAULT_SOURCE and
+# _GNU_SOURCE above already grant equivalent or stricter visibility on Linux.
+if host_machine.system() != 'freebsd'
+  pre_args += [
+    '-D_POSIX_C_SOURCE=200809L',
+    '-D_XOPEN_SOURCE=700',
+  ]
+endif
 
 foreach a : pre_args
   add_project_arguments(a, language : ['c'])
@@ -92,12 +100,20 @@ dep_m = cc.find_library('m', required : false)
 dep_thread = dependency('threads')
 dep_vulkan = dependency('vulkan')
 
+# FreeBSD does not provide <sys/epoll.h> or <sys/signalfd.h> natively. The
+# libepoll-shim port (devel/libepoll-shim) implements these on top of kqueue.
+extra_deps = []
+if host_machine.system() == 'freebsd'
+  extra_deps += dependency('epoll-shim')
+endif
+
 executable(
   'crucible',
   [command_sources, data_outputs, framework_sources, man_pages, qonos_sources,
    test_sources, util_sources],
   include_directories : [inc_include],
-  dependencies: [dep_libpng16, dep_libxml2, dep_m, dep_thread, dep_vulkan],
+  dependencies: [dep_libpng16, dep_libxml2, dep_m, dep_thread, dep_vulkan]
+                + extra_deps,
 )
 
 # Dependency checks that will only cause problems at build time

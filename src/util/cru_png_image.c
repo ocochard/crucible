@@ -19,7 +19,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
+#ifdef __FreeBSD__
+#include <stdlib.h>		/* alloca() lives here on FreeBSD */
+#else
 #include <alloca.h>
+#endif
 #include <endian.h>
 #include <stdio.h>
 #include <string.h>

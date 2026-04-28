@@ -54,7 +54,13 @@ crucible_clock_gettime(VkTimeDomainEXT domain)
         clock_id = CLOCK_MONOTONIC;
         break;
     case VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_EXT:
+#ifdef CLOCK_MONOTONIC_RAW
         clock_id = CLOCK_MONOTONIC_RAW;
+#else
+        /* FreeBSD has no Linux-style "raw" monotonic clock; fall back to the
+         * regular monotonic clock, which is also unaffected by NTP slewing. */
+        clock_id = CLOCK_MONOTONIC;
+#endif
         break;
     default:
         t_assert(0);

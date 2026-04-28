@@ -67,12 +67,13 @@ static inline void
 cru_slist_prepend_atomic(cru_slist_t **list, void *data)
 {
     cru_slist_t *elem;
+    _Atomic(cru_slist_t *) *alist = (_Atomic(cru_slist_t *) *) list;
 
     elem = xmalloc(sizeof(*elem));
     elem->data = data;
-    elem->next = atomic_load(list);
+    elem->next = atomic_load(alist);
 
-    while (!atomic_compare_exchange_strong(list, &elem->next, elem)) {}
+    while (!atomic_compare_exchange_strong(alist, &elem->next, elem)) {}
 }
 
 /// Pop off the list's first node and return the node's data.
