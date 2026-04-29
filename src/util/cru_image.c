@@ -45,11 +45,21 @@ cru_image_get_abspath(const char *filename)
     if (env && env[0]) {
         path_append_cstr(&abspath, env);
         path_append_cstr(&abspath, filename);
-    } else {
+    }
+#ifdef CRUCIBLE_DATA_DIR
+#define CRUCIBLE_STRINGIFY_(x) #x
+#define CRUCIBLE_STRINGIFY(x) CRUCIBLE_STRINGIFY_(x)
+    else {
+        path_append_cstr(&abspath, CRUCIBLE_STRINGIFY(CRUCIBLE_DATA_DIR));
+        path_append_cstr(&abspath, filename);
+    }
+#else
+    else {
         path_append(&abspath, cru_prefix_path());
         path_append_cstr(&abspath, "data");
         path_append_cstr(&abspath, filename);
     }
+#endif
 
     return string_detach(&abspath);
 }
